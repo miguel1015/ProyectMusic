@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable jsx-a11y/alt-text */
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { styled } from "@mui/material/styles";
@@ -5,7 +7,6 @@ import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
-import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
@@ -33,6 +34,7 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import { useTheme } from "@emotion/react";
+import { ApiUser } from "../adapters/adapter";
 
 function Navbar() {
   /**
@@ -65,17 +67,15 @@ function Navbar() {
 
   const getImage = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:9000/api/users/GetAll"
-      );
+      const response = await axios.get(ApiUser);
       const authenticatedUser = localStorage.getItem("authenticatedUser");
-      const user = response.data.find(
-        (user: { name: string; profileImage: string }) =>
+      const user = response?.data?.find(
+        (user: { name: string; perfilImage: string }) =>
           user.name === authenticatedUser
       );
 
-      if (user && user.profileImage) {
-        setPicture("data:image/png;base64," + user.profileImage);
+      if (user && user?.perfilImage) {
+        setPicture(user?.perfilImage);
       }
     } catch (error) {
       console.error("Error al obtener la imagen:", error);
@@ -228,22 +228,7 @@ function Navbar() {
             </Drawer>
             {/* /////////////////////////////////// */}
             <Grid item xs={6} sm={7.5} md={8} lg={8.5}>
-              <LibraryMusicIcon />
-              <Typography
-                variant="h6"
-                noWrap
-                component="a"
-                sx={{
-                  mr: 2,
-                  fontFamily: "monospace",
-                  fontWeight: 700,
-                  letterSpacing: ".3rem",
-                  color: "inherit",
-                  textDecoration: "none",
-                }}
-              >
-                MusicMike
-              </Typography>
+              <img src="/logoNavbarMusic.png" width={150} />
             </Grid>
 
             <Box sx={{ flexGrow: 0.1 }}>
@@ -369,7 +354,12 @@ function Navbar() {
                 onClose={handleCloseUserMenu}
               >
                 <MenuItem onClick={buttonProfile}>
-                  <Avatar /> Perfil
+                  <Avatar
+                    alt="Rely Sharp"
+                    src={picture || ""}
+                    sx={{ width: 70, height: 70 }}
+                  />
+                  Perfil
                 </MenuItem>
                 <MenuItem onClick={buttonMore}>
                   <ListItemIcon>

@@ -1,32 +1,26 @@
 /* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable @next/next/no-img-element */
-import React, { useState } from "react";
-import Button from "@mui/material/Button";
+import { CircularProgress, Typography, useMediaQuery } from "@mui/material";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import ButtonBase from "@mui/material/ButtonBase";
 import Grid from "@mui/material/Grid";
-import "react-toastify/dist/ReactToastify.css";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import Link from "@mui/material/Link";
+import { styled } from "@mui/material/styles";
+import Head from "next/head";
+import Image from "next/image";
+import { useRouter } from "next/router";
+import { useState } from "react";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
+import Slider from "react-slick";
+import "react-toastify/dist/ReactToastify.css";
+import "slick-carousel/slick/slick-theme.css";
+import "slick-carousel/slick/slick.css";
 import {
-  BoxNavbarLogin,
   BoxSongsFavorite,
-  BoxTitleONe,
   TypographyFirstTitle,
   TypographyText,
 } from "./styled";
-import { styled } from "@mui/material/styles";
-import ButtonBase from "@mui/material/ButtonBase";
-import { Typography, CircularProgress } from "@mui/material";
-import PianoIcon from "@mui/icons-material/Piano";
-import { useMediaQuery } from "@mui/material";
-import Link from "@mui/material/Link";
-import Image from "next/image";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import Head from "next/head";
-import { useRouter } from "next/router";
 
 function Index() {
   /**
@@ -194,10 +188,7 @@ function Index() {
               xl={6}
               sx={{ display: "flex", justifyContent: "center" }}
             >
-              <Typography sx={{ fontSize: "xx-large" }}>
-                <PianoIcon />
-                M.M.
-              </Typography>
+              <img src="/musikMikeBegin.png" alt="musicMikeBegin" width={180} />
             </Grid>
             <Grid
               item

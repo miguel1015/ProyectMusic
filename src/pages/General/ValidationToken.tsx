@@ -21,7 +21,8 @@ const ValidationToken: React.FC<{ children: ReactNode }> = ({ children }) => {
       if (
         pathname === "/" ||
         pathname === "/Login/Index" ||
-        pathname === "/Register/Index"
+        pathname === "/Register/Index" ||
+        pathname === "/Prueba/LectorPdf"
       ) {
         setAccessValidate(true);
       } else {

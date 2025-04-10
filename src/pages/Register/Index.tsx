@@ -1,8 +1,6 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
-import Avatar from "@mui/material/Avatar";
-import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import Grid from "@mui/material/Grid";
@@ -10,7 +8,6 @@ import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import axios from "axios";
 import Head from "next/head";
@@ -20,8 +17,13 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import * as yup from "yup";
+import { Avatar, Box, Typography } from "@mui/material";
+import imageCompression from "browser-image-compression";
+import { ApiCreateUser, ApiUser } from "../../components/adapters/adapter";
+import { boxContent, boxGeneral } from "./styled";
 
 interface User {
+  id?: number;
   name: string;
   email: string;
   password: string;
@@ -46,6 +48,7 @@ export default function Register() {
       .string()
       .required("Contraseña es requerida")
       .min(6, "La contraseña tiene que ser mayor a 6 dígitos"),
+    perfilImage: yup.string().optional().nullable(),
   });
 
   /**
@@ -63,29 +66,43 @@ export default function Register() {
    * States
    */
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [base64Image, setBase64Image] = useState<string | null>(null);
 
-  /**
-   * Función para escoger la imagen.
-   */
-  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const typeImage: string[] = [
-      "img",
-      "jpg",
-      "png",
-      "jpeg",
-      "tiff",
-      "psd",
-      "svg",
-    ];
+  // Función para escoger la imagen
+  const handleImageSelect = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const typeImage: string[] = ["jpg", "png", "jpeg", "tiff", "psd", "svg"];
     if (event.target.files && event.target.files.length > 0) {
-      const selectedFile = event.target.files[0];
-      const fileNameParts = selectedFile.name.split(".");
+      let selectedFile = event.target.files[0];
+      const fileNameParts = selectedFile?.name.split(".");
       const fileExtension =
         fileNameParts[fileNameParts.length - 1].toLowerCase();
 
       if (typeImage.includes(fileExtension)) {
-        setSelectedImage(selectedFile);
-        toast.success("¡Imagen encontrada!");
+        // Configuración de compresión
+        const options = {
+          maxSizeMB: 1, // Tamaño máximo del archivo en MB
+          maxWidthOrHeight: 1024, // Dimensiones máximas
+          useWebWorker: true,
+        };
+
+        try {
+          // Comprimir la imagen
+          const compressedFile = await imageCompression(selectedFile, options);
+          setSelectedImage(compressedFile);
+
+          // Convertir la imagen comprimida a base64
+          const reader = new FileReader();
+          reader.readAsDataURL(compressedFile);
+          reader.onloadend = () => {
+            setBase64Image(reader.result as string);
+          };
+
+          toast.success("¡Imagen seleccionada correctamente!");
+        } catch (error) {
+          toast.error("Error al comprimir la imagen");
+        }
       } else {
         toast.error("¡Archivo no compatible!");
         event.target.value = "";
@@ -98,29 +115,25 @@ export default function Register() {
    */
   const onSubmit = async (data: User) => {
     try {
-      const response = await axios.get(
-        `http://localhost:9000/api/users/exists?email=${encodeURIComponent(
-          data.email
-        )}`
-      );
+      // Preguntar si ya existe un usuario
+      const response = await axios.get(ApiUser);
+      const exist = response?.data?.find((x: User) => x?.email === data?.email);
 
-      if (!!response?.data?.exists) {
-        toast.error("¡El usuario ya está registrado!");
+      if (!!exist) {
+        toast.error("¡El email ya se encuentra registrado!");
       } else if (!selectedImage) {
         toast.info("¡Por favor escoja una imagen!");
-      } else if (!response?.data?.exists) {
-        const formData = new FormData();
-        formData.append("name", data.name);
-        formData.append("email", data.email);
-        formData.append("password", data.password);
-        formData.append("profileImage", selectedImage);
+      } else if (!exist) {
+        const userData = {
+          ...data,
+          perfilImage: base64Image,
+          token: "",
+        };
 
-        const createResponse = await axios.post(
-          "http://localhost:9000/api/users/Register",
-          formData
-        );
+        //Enviar la data al back
+        const createUser = await axios.post(ApiCreateUser, userData);
 
-        if (createResponse) {
+        if (createUser) {
           toast.success("¡Usuario creado con éxito!", {
             autoClose: 2000,
             hideProgressBar: true,
@@ -144,11 +157,7 @@ export default function Register() {
         <title>Register</title>
       </Head>
       <ThemeProvider theme={createTheme()}>
-        <Grid
-          container
-          component="main"
-          sx={{ height: "auto", background: "black" }}
-        >
+        <Grid container component="main" sx={{ ...boxGeneral }}>
           <CssBaseline />
           <Grid
             item
@@ -164,17 +173,13 @@ export default function Register() {
           />
           <Grid
             item
-            xs={8}
+            xs={12}
             sm={8}
             md={3}
             component={Paper}
             elevation={5}
             square
-            sx={{
-              margin: "30px 0px 10px 150px",
-              height: "auto",
-              borderRadius: "15px",
-            }}
+            sx={{ ...boxContent }}
           >
             <Box
               sx={{
@@ -278,14 +283,15 @@ export default function Register() {
                   helperText={errors.password?.message}
                 />
 
-                <label htmlFor="profileImage">
+                <label htmlFor="perfilImage">
                   <input
                     style={{ display: "none" }}
-                    accept="image/*"
-                    id="profileImage"
+                    accept="image"
+                    id="perfilImage"
                     type="file"
+                    {...register("perfilImage")}
                     onChange={handleImageSelect}
-                    name="profileImage"
+                    name="perfilImage"
                   />
                   <IconButton
                     color="primary"

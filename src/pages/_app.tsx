@@ -18,7 +18,8 @@ export default function App({ Component, pageProps }: AppProps) {
     if (
       pathname === "/" ||
       pathname === "/Login/Index" ||
-      pathname === "/Register/Index"
+      pathname === "/Register/Index" ||
+      pathname === "/Prueba/LectorPdf"
     ) {
       setAccessValidate(false);
     } else {

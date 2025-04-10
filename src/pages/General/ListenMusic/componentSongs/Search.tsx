@@ -25,7 +25,7 @@ const Search = () => {
       }}
     >
       <h2 style={{ fontWeight: "700", fontSize: "30px", lineHeight: "36px" }}>
-        Showing results for <span className="font-black">{search}</span>
+        Showing results for <span>{search}</span>
       </h2>
 
       <div

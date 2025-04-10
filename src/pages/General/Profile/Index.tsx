@@ -3,10 +3,12 @@ import Image from "next/image";
 import axios from "axios";
 import { CircularProgress, Container, Typography, Box } from "@mui/material";
 import Footers from "@/components/Foouters/Index";
+import { ApiUser } from "../../../components/adapters/adapter";
+import { toast } from "react-toastify";
 
 export default function Profile() {
-  const [name, setName] = useState<any>("");
-  const [picture, setPicture] = useState<any>(null);
+  const [name, setName] = useState<string | null>("");
+  const [picture, setPicture] = useState<string | null>(null);
 
   const getName = () => {
     const userName = localStorage.getItem("authenticatedUser");
@@ -15,20 +17,20 @@ export default function Profile() {
 
   const getImage = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:9000/api/users/GetAll"
-      );
+      const response = await axios.get(ApiUser);
       const authenticatedUser = localStorage.getItem("authenticatedUser");
       const user = response.data.find(
-        (user: any) => user.name === authenticatedUser
+        (user: { name: string }) => user?.name === authenticatedUser
       );
-      console.log("✅✅", user);
 
-      if (user && user.profileImage) {
-        setPicture("data:image/png;base64," + user.profileImage);
+      if (user && user?.perfilImage) {
+        setPicture(user?.perfilImage);
       }
     } catch (error) {
-      console.error("Error al obtener la imagen:", error);
+      toast.error(error ? (error as string) : "Ha ocurrido una incidencia.", {
+        autoClose: 2000,
+        hideProgressBar: true,
+      });
     }
   };
 

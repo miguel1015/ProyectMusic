@@ -1,36 +1,232 @@
 import { FC } from "react";
 import styled, { keyframes } from "styled-components";
 
-const animationImg = keyframes`
-    0% { opacity: 1; }
-    50% { opacity: 0.4; }
-    100% { opacity: 1; }
+// Animación para llenar el reloj de arena
+const fillAnimation = keyframes`
+  from {
+    clip-path: polygon(0% 0%, 100% 0%, 100% 24%, 50% 47%, 50% 47%, 50% 47%, 50% 47%, 50% 47%, 50% 47%, 50% 47%, 0% 24%);
+  }
+  10% {
+    clip-path: polygon(0% 4%, 100% 4%, 100% 24%, 55% 45%, 55% 100%, 55% 100%, 55% 100%, 45% 100%, 45% 100%, 45% 100%, 45% 45%, 0% 24%);
+  }
+  45% {
+    clip-path: polygon(0% 24%, 100% 24%, 100% 24%, 55% 45%, 55% 80%, 100% 100%, 100% 100%, 0% 100%, 0% 100%, 45% 80%, 45% 45%, 0% 24%);
+  }
+  80% {
+    clip-path: polygon(45% 45%, 55% 45%, 55% 45%, 55% 45%, 55% 58%, 100% 76%, 100% 100%, 0% 100%, 0% 76%, 45% 58%, 45% 45%, 45% 45%);
+  }
+  85%, to {
+    clip-path: polygon(50% 53%, 50% 53%, 50% 53%, 50% 53%, 50% 53%, 100% 76%, 100% 100%, 0% 100%, 0% 76%, 50% 53%, 50% 53%, 50% 53%);
+  }
 `;
 
-const Logo = styled.img`
-  width: 150px;
-  height: 150px;
-  animation: ${animationImg} 2s infinite;
+// Animación para el brillo
+const glareAnimation = keyframes`
+  from, 90% {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(3em);
+  }
 `;
 
-export interface ISize {
-  width: number | undefined;
-  height: number | undefined;
-}
+// Animación para la rotación del reloj de arena
+const flipAnimation = keyframes`
+  from, 90% {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(180deg);
+  }
+`;
 
-const Loading: FC<{ size?: ISize }> = ({ size }) => {
+// Styled components para el reloj de arena
+const Hourglass = styled.div`
+  --polygonH: polygon(
+    0% 0%,
+    100% 0%,
+    100% 5.55%,
+    95% 5.55%,
+    95% 28%,
+    60% 46%,
+    60% 54%,
+    95% 72%,
+    95% 94.45%,
+    100% 94.45%,
+    100% 100%,
+    0% 100%,
+    0% 94.45%,
+    5% 94.45%,
+    5% 72%,
+    40% 54%,
+    40% 46%,
+    5% 28%,
+    5% 5.55%,
+    0% 5.55%
+  );
+  animation: ${flipAnimation} 2s ease-in-out infinite;
+  background-image: linear-gradient(
+    #255ff4 0.5em,
+    #737a8c55 0.5em 8.5em,
+    #255ff4 8.5em
+  );
+  clip-path: var(--polygonH);
+  -webkit-clip-path: var(--polygonH);
+  overflow: hidden;
+  position: relative;
+  width: 5em;
+  height: 9em;
+  z-index: 0;
+`;
+
+const HourglassBefore = styled.div`
+  --polygonB1: polygon(
+    0% 0%,
+    100% 0%,
+    100% 24%,
+    50% 47%,
+    50% 47%,
+    50% 47%,
+    50% 47%,
+    50% 47%,
+    50% 47%,
+    50% 47%,
+    0% 24%
+  );
+  --polygonB2: polygon(
+    0% 4%,
+    100% 4%,
+    100% 24%,
+    55% 45%,
+    55% 100%,
+    55% 100%,
+    55% 100%,
+    45% 100%,
+    45% 100%,
+    45% 100%,
+    45% 45%,
+    0% 24%
+  );
+  --polygonB3: polygon(
+    0% 24%,
+    100% 24%,
+    100% 24%,
+    55% 45%,
+    55% 80%,
+    100% 100%,
+    100% 100%,
+    0% 100%,
+    0% 100%,
+    45% 80%,
+    45% 45%,
+    0% 24%
+  );
+  --polygonB4: polygon(
+    45% 45%,
+    55% 45%,
+    55% 45%,
+    55% 45%,
+    55% 58%,
+    100% 76%,
+    100% 100%,
+    0% 100%,
+    0% 76%,
+    45% 58%,
+    45% 45%,
+    45% 45%
+  );
+  --polygonB5: polygon(
+    50% 53%,
+    50% 53%,
+    50% 53%,
+    50% 53%,
+    50% 53%,
+    100% 76%,
+    100% 100%,
+    0% 100%,
+    0% 76%,
+    50% 53%,
+    50% 53%,
+    50% 53%
+  );
+  animation: ${fillAnimation} 2s infinite;
+  background-color: #2e3138;
+  background-size: 100% 3.6em;
+  clip-path: var(--polygonB1);
+  -webkit-clip-path: var(--polygonB1);
+  position: absolute;
+  top: 0.5em;
+  left: 0.5em;
+  width: 4em;
+  height: 8em;
+  z-index: 1;
+`;
+
+const HourglassAfter = styled.div`
+  animation: ${glareAnimation} 2s infinite;
+  background: linear-gradient(
+        90deg,
+        #0000 0.5em,
+        #0003 0.5em 1.5em,
+        #0000 1.5em 3.5em,
+        #fff3 3.5em 4.5em,
+        #fff0 4.5em 6.5em,
+        #0003 6.5em 7.5em,
+        #0000 7.5em
+      )
+      0 0 / 100% 0.5em,
+    linear-gradient(
+        90deg,
+        #0000 0.75em,
+        #0003 0.75em 1.25em,
+        #0000 1.25em 3.75em,
+        #fff3 3.75em 4.25em,
+        #fff0 4.25em 6.75em,
+        #0003 6.75em 7.25em,
+        #0000 7.25em
+      )
+      0 0.5em / 100% 8em,
+    linear-gradient(
+        90deg,
+        #0000 0.5em,
+        #0003 0.5em 1.5em,
+        #0000 1.5em 3.5em,
+        #fff3 3.5em 4.5em,
+        #fff0 4.5em 6.5em,
+        #0003 6.5em 7.5em,
+        #0000 7.5em
+      )
+      0 100% / 100% 0.5em;
+  background-repeat: repeat-x;
+  position: absolute;
+  top: 0;
+  left: -3em;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+`;
+
+// Contenedor de la animación
+const Container = styled.div`
+  display: grid;
+  place-items: center;
+  height: 100vh;
+  background: #e3e4e8;
+  font-size: calc(16px + (24 - 16) * (100vw - 320px) / (1280 - 320));
+  @media (prefers-color-scheme: dark) {
+    background: #17181c;
+    color: #c7cad1;
+  }
+`;
+
+const Loading: FC = () => {
   return (
-    <div
-      style={{
-        width: size?.width || "100%",
-        height: size?.height || "100%",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Logo src="/Notas-Musicales.png" alt="Loading..." />
-    </div>
+    <Container>
+      <Hourglass>
+        <HourglassBefore />
+        <HourglassAfter />
+      </Hourglass>
+    </Container>
   );
 };
 

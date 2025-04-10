@@ -20,6 +20,7 @@ import {
 } from "./styled";
 import Head from "next/head";
 import { CircularProgress } from "@mui/material";
+import { ApiUser } from "../../components/adapters/adapter";
 
 interface User {
   email: string;
@@ -31,6 +32,7 @@ interface TDataUser {
   name: string;
   password: string;
   profileImage: string;
+  token: string;
 }
 
 function Login() {
@@ -44,12 +46,6 @@ function Login() {
    */
   const [loading, setLoading] = useState(false);
   const [dataUser, setDataUser] = useState<TDataUser[]>([]);
-
-  /**
-   *Consultas de la API.
-   */
-  const verApi = "http://localhost:9000/api//users/GetAll";
-  const ApiToken = "http://localhost:9000/api//users/SigIn";
 
   /**
    *Validaciones del yup
@@ -76,7 +72,7 @@ function Login() {
   useEffect(() => {
     const result = async () => {
       try {
-        const data = await axios.get(verApi);
+        const data = await axios.get(ApiUser);
         setDataUser(data?.data);
       } catch (error) {
         return error;
@@ -85,36 +81,31 @@ function Login() {
     result();
   }, []);
 
+  console.log("🐸🐸🐸🐸", dataUser)
+
   /**
    *Función para acceder a la vista
    */
   const onSubmits = async (data: User) => {
     try {
+      //Pregunta por el usuario
       const foundUser = dataUser.find(
         (user: User) =>
           user?.email === data?.email && user?.password === data?.password
       );
 
-      if (foundUser) {
-        const response = await axios.post(ApiToken, data);
+      if (!!foundUser) {
+        //Guardar en el localStorage
+        const token = foundUser?.token;
+        localStorage.setItem("token", token);
+        localStorage.setItem("authenticatedUser", foundUser?.name);
 
-        if (response.status === 200) {
-          const token = response?.data?.data?.token;
-          localStorage.setItem("token", token);
-          localStorage.setItem("authenticatedUser", foundUser?.name);
-
-          setLoading(true);
-          toast.success("¡Ha iniciado sesión correctamente!", {
-            autoClose: 2000,
-            hideProgressBar: true,
-          });
-          router.replace("/General/Home/Index");
-        } else {
-          toast.error("¡Error en la autenticación!", {
-            autoClose: 2000,
-            hideProgressBar: true,
-          });
-        }
+        setLoading(true);
+        toast.success("¡Ha iniciado sesión correctamente!", {
+          autoClose: 2000,
+          hideProgressBar: true,
+        });
+        router.replace("/General/Home/Index");
       } else {
         toast.error("¡Usuario o contraseña incorrecta!", {
           autoClose: 2000,
